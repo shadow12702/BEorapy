@@ -1,0 +1,29 @@
+Mode Offline:
+	1. Collect awrdump => dump => import DB Repos
+	2. Collect HC => tar => import DB Repos
+    3. DBSAT.sql => JSON [module security read from JSON -> DB]
+    4. Exachk/AHF => html Exachk/AHF => html (optional)
+
+
+Mode online ( direct connection)
+
+	1. Colect AWR data ( inverval 1 hours ) => import DB Repos
+	2. Collect HC ( inverval 1 hours ) repeated 
+	3. DBSAT.sql => JSON [read direct from db to DB]    
+	4. Exachk/AHF => html (optional)
+
+=> Assessment  
+    1. Performance Assessment 
+    2. Security Security Assessment
+
+
+
+Planning:
+- build repository:
+    + process import awrdump when import to system. (if existed throw exception)
+- split project to module: (2 Mode)
+    + AWR
+    + Healthcheck
+    + DBSAT
+    + Exachk/AHF
+- estimate time -> members

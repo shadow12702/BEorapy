@@ -1,0 +1,34 @@
+from base.domain.base_entity import BaseEntity
+from datetime import datetime
+from numpy import float64
+
+class NonCdbSqlSnapIoWait(BaseEntity):
+
+    DbName: str
+    InstanceName: str
+    SnapTime: datetime
+    SqlId: str
+    Executions: object
+    IoWait: object
+    IoWaitExec: object
+    Ratio: float64
+
+    key_map = {
+        'DB_NAME': 'DbName',
+        'INSTANCE_NAME': 'InstanceName',
+        'SNAP_TIME': 'SnapTime',
+        'SQL_ID': 'SqlId',
+        'EXECUTIONS': 'Executions',
+        'IOWAIT': 'IoWait',
+        'IOWAIT_EXEC': 'IoWaitExec',
+        'RATIO': 'Ratio'
+    }
+
+    def __init__(self, **kwargs):
+        """
+        NonCdbSqlSnapIoWait model, inheriting from BaseModel.
+
+        Args:
+            **kwargs: The kwargs for NonCdbSqlSnapIoWait.
+        """
+        super().__init__(**kwargs)
