@@ -20,15 +20,7 @@ class MenuService():
         :return: List of all menu'''
         try:
             menu =  await self.repository.get_menu(type)
-            result = [MenuResponse(**{
-                    "id":item.Id,
-                    "code":item.Code,
-                    "name":item.Name,
-                    "icon":item.Icon if item.Icon else '',
-                    "parent":item.Parent if item.Parent else '',
-                    "route":item.Route if item.Route else '',
-                    "is_show":bool(item.IsShow)})  
-                for item in menu ]
+            result = [MenuResponse.from_model(item) for item in menu ]
             return result
         except Exception as ex:
             self._logger.error(f"get menu error: {ex}")
@@ -45,7 +37,7 @@ class MenuService():
 
         :param entities: List of menu'''
         try:
-            data = [(e.Name, e.Icon, e.Parent, e.Route, e.IsShow) for e in entities]
+            data = [(e.name, e.icon, e.parent, e.prefix, e.route, e.is_show) for e in entities]
             return await self.repository.add_many(data)
         except Exception as ex:
             self._logger.error(f"addMany Menus error: \n{entities.__repr__()}\n{ex}")

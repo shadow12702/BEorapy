@@ -17,17 +17,7 @@ class AwrRepoInfoService():
         try:
             awr_info = await self.respository.get_awr_repo_info()
             result = [
-                AwrRepoInfoResponse(**{
-                    "customer_code": item.CustomerCode,
-                    "customer_name": item.CustomerName,
-                    "version": item.Version,
-                    "db_name": item.DbName,
-                    "cdb": True if item.Cdb == 'YES' else False,                
-                    "pdb_dbid": item.PdbDbid or 0,
-                    "pdb_name": item.PdbName,
-                    "end_snap": item.EndSnap or 0,
-                    "end_time": item.EndTime 
-                })
+                AwrRepoInfoResponse.from_model(item)
                 for item in awr_info
             ]
             return result
@@ -39,11 +29,7 @@ class AwrRepoInfoService():
         try:
             awr_info = await self.respository.get_awr_repo_by_customer_code(customer_code)
             result = [
-                AwrInfoCustomerResponse(**{
-                    "dbid" : item.Dbid ,
-                    "db_name" : item.DbName,
-                    
-                })
+                AwrInfoCustomerResponse.from_model(item)
                 for item in awr_info
             ]
             return result

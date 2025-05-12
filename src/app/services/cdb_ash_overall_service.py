@@ -6,6 +6,7 @@ from app.factory import ApplicationFactory
 from utils.multi_threads import MultiThreads
 from dependencies import config_manager as cf_manager
 from logger import AppLogger
+from app.models.responses.cdb.cdb_response import AshOverallMetricResponse, AshOverallObjectMetricResponse
 
 class CdbAshOverallService():
     
@@ -16,17 +17,15 @@ class CdbAshOverallService():
         self._repository = factory.cdb_ash_overall_repository()        
         self._multiThreads = MultiThreads(max_threads)
 
-    async def get_ash_overall_index(self, cus_code: str,  dbid:int64):
-        begin_snap = 731
-        end_snap = 927
-        data = await self.repository.ash_overall_index(cus_code, dbid, begin_snap, end_snap)
-        return data
+    async def get_ash_overall_metric(self, metric_type:str, cus_code: str,  dbid:int64, begin_snap: int, end_snap: int):
+        _overalls = await self.repository.ash_overall_metric(metric_type, cus_code, dbid, begin_snap, end_snap)
+        result = [AshOverallMetricResponse.from_model(item) for item in _overalls]
+        return result
     
-    async def get_ash_overall_table(self, cus_code: str,  dbid:int64):
-        begin_snap = 731
-        end_snap = 927
-        data = await self.repository.ash_overall_table(cus_code, dbid, begin_snap, end_snap)
-        return data
+    async def get_ash_overall_object_metric(self, metric_type:str, cus_code: str,  dbid:int64, begin_snap: int, end_snap: int):
+        _overall_objects = await self.repository.ash_overall_object_metric(metric_type, cus_code, dbid, begin_snap, end_snap)
+        result = [AshOverallObjectMetricResponse.from_model(item) for item in _overall_objects]
+        return result
     
     async def get_ash_overall_segment(self, cus_code: str,  dbid:int64):
         begin_snap = 731

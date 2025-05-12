@@ -1,12 +1,13 @@
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel
 
 class User(BaseModel):
-    Username: str
-    Email: str        
-    IsAdmin: bool
-    LastIpAddress: str
-    LastLoginDate: datetime
+    username: str
+    email: Optional[str] = None
+    is_admin: bool = False
+    last_ip_address: str
+    last_login_date: datetime = datetime.utcnow()
     
 class Token(BaseModel):
     access: str

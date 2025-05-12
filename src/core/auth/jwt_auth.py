@@ -10,19 +10,25 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/login')
 class JwtAuth:
     
     @staticmethod
-    async def create_token(data: dict):
-        def sync_create_token():
+    async def generate_token(data: dict, token_type: str = "access"):
+        def sync_gen_token(token_type: str):
+            if token_type not in ["access", "refresh"]:
+                raise ValueError("Token type must be either 'access' or 'refresh'")
             if not isinstance(data, dict):
                 raise ValueError("Token data must be a dictionary")
             try:
                 jwt_auth = cf_manager.jwt_auth_config
                 to_encode = data.copy()
-                expire = datetime.utcnow() + timedelta(minutes=jwt_auth.TokenExpireMinutes)
+                expire = datetime.utcnow() +  (timedelta(minutes=jwt_auth.TokenExpireMinutes) if token_type == "access" else timedelta(days=jwt_auth.RefreshExpireDays))
                 to_encode.update({'exp' : expire})
                 return jwt.encode(to_encode, jwt_auth.JwtAuthKey, algorithm=jwt_auth.Algorithm)
+            except (TypeError, ValueError) as ex:
+                raise HTTPException(status_code=401, detail=f"Invalid token data: {ex}")
+            except JWTError as ex:
+                raise HTTPException(status_code=401, detail=f"JWT error: {ex}")
             except Exception as ex:
                 raise HTTPException(status_code=401, detail=ex)
-        return await asyncio.to_thread(sync_create_token)
+        return await asyncio.to_thread(sync_gen_token, token_type)
         
     @staticmethod
     async def decode_token(token: str):
@@ -37,21 +43,6 @@ class JwtAuth:
             except JWTError as ex:
                 raise HTTPException(status_code=401, detail=ex)
         return await asyncio.to_thread(sync_decode_token)
-
-    @staticmethod
-    async def refresh_token(data: dict):
-        def sync_refresh_token():
-            if not isinstance(data, dict):
-                raise ValueError("Token data must be a dictionary")
-            try:
-                jwt_auth = cf_manager.jwt_auth_config
-                to_encode = data.copy()
-                expire = datetime.utcnow() + timedelta(days=jwt_auth.RefreshExpireDays)
-                to_encode.update({'exp': expire})
-                return jwt.encode(to_encode, jwt_auth.JwtAuthKey, algorithm=jwt_auth.Algorithm)
-            except Exception as ex:
-                raise HTTPException(status_code=401, detail= ex)
-        return await asyncio.to_thread(sync_refresh_token)
         
     @staticmethod
     async def get_current_user(token: str = Depends(oauth2_scheme)):

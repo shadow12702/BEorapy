@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends
 from admin.factory import AdminFactory
+from app.presentation.route import verify_auth
 from dependencies import get_admin_factory
 from admin.presentation.controller import PatchController
 from admin.services.patch_service import PatchService
 from admin.models.response_model import successful, failed
 from admin.models.request_model import PatchRequest,PatchUpdateRequest
 
-patch_router = APIRouter(tags=["Patch"])
+patch_router = APIRouter(tags=["Patch"], dependencies=[Depends(verify_auth)])
 
 def get_patch_controller(admin_factory: AdminFactory = Depends(get_admin_factory)):
     '''Get tem Patch controller'''

@@ -1,22 +1,17 @@
 # Description: LoginModel
 
 from datetime import datetime
-from base.model.mapped_base_model import MappedBaseModel
+from typing import Optional
 
-class LoginModel(MappedBaseModel):
+from base.model.base_model import BaseModel
+
+class LoginModel(BaseModel):
     
-    Username: str
-    Email: str        
-    IsAdmin: bool
-    LastIpAddress: str
-    LastLoginDate: datetime
+    username: str
+    email: Optional[str] = None
+    is_admin: bool = False
+    last_ip_address: str
+    last_login_date: datetime
     
-    key_map = {        
-        "USERNAME"					    : "Username",
-        "EMAIL"					        : "Email",         
-        "IS_ADMIN"                      : "IsAdmin",
-        "LAST_IP_ADDRESS"				: "LastIpAddress",
-        "LAST_LOGIN_DATE_UTC"			: "LastLoginDate"        
-    }
     
                 

@@ -59,7 +59,7 @@ class AccountRepository():
             activation_token = secrets.token_urlsafe(32)            
             await self.db_context.execute_query(query, {
                 "V_USERNAME" : username,
-                "V_EMAIL" : email,
+                "V_EMAIL" : email if email else username+"@orapy.com",
                 "V_PASSWORD" : password,
                 "V_CANNOT_LOGIN": helper.get_date_utc(5), 
                 "V_ACTIVE": 0 if email else 1,

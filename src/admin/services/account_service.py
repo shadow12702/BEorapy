@@ -11,21 +11,21 @@ from dependencies import config_manager as cf_manager
 class AccountService():
     _logger = AppLogger().get_logger()
     def __init__(self, factory: AdminFactory):
-        self.account_repository = factory.account_repository()
+        self.repository = factory.account_repository()
     
     
     async def get_all(self):
         '''Get all accounts
         
         :return: list accounts'''
-        return await self.account_repository.get_all()
+        return await self.repository.get_all()
     
     async def get_account(self, username:str):
         '''Get account by username
         
         :param username: account's username
         :return: account model'''
-        return await self.account_repository.get_account(username=username)
+        return await self.repository.get_account(username=username)
     
     async def register(self, username: str, password: str, email:str=None):
         '''Register new account
@@ -36,15 +36,15 @@ class AccountService():
         :return: True when register successful else False
         '''
         try:
-            account = await self.account_repository.get_account(username)
+            account = await self.repository.get_account(username)
             if not account.is_empty:
                 return False
             
-            hash_pwd = self._hashPassword(password)                                
-            activation_token = await self.account_repository.add(username=username, password=hash_pwd, email=email)
+            hash_pwd = self._hash_password(password)                                
+            activation_token = await self.repository.add(username=username, password=hash_pwd, email=email)
             
             if email and activation_token:
-                return await self._sendActivationEmail(username, email, activation_token)
+                return await self._send_activation_email(username, email, activation_token)
             return True
         except Exception as ex:
             self._logger.error(f"Register account failed. \n{ex}")            
@@ -55,24 +55,19 @@ class AccountService():
         try:
             account = await self.get_account(username)
             if not account.is_empty:
-                if account.IsActived == 0 or account.IsDeleted == 1 or account.IsLocked > 0:
+                if account.is_actived == 0 or account.is_deleted == 1 or account.is_locked > 0:
                     return LoginModel.empty()
-                if not self._verify_password(password, account.Password):
-                    failed_attempts = account.FailedLoginAttemps + 1
-                    await self.account_repository.update_failed_attempts(username, failed_attempts, lock=1 if failed_attempts >= 5 else 0)
-                    if account.Email:
-                        await EmailSender.send_email(recipient=account.Email, subject="Orapy Account Locked", 
+                if not self._verify_password(password, account.password):
+                    failed_attempts = account.failed_login_attemps + 1
+                    await self.repository.update_failed_attempts(username, failed_attempts, lock=1 if failed_attempts >= 5 else 0)
+                    if account.email:
+                        await EmailSender.send_email(recipient=account.email, subject="Orapy Account Locked", 
                                                body=cf_manager.mail_config.body.LockAccount.format(username))
                     return LoginModel.empty()
                 else:
-                    await self.account_repository.update_last_login(username, last_ip)
-                    await self.account_repository.update_failed_attempts(username, 0)
-                    return LoginModel(**{"USERNAME": account.Username, 
-                                        "EMAIL": account.Email, 
-                                        "IS_ADMIN": account.IsAdmin,
-                                        "LAST_IP_ADDRESS":last_ip, 
-                                        "LAST_LOGIN_DATE_UTC": datetime.utcnow()
-                                        })
+                    await self.repository.update_last_login(username, last_ip)
+                    await self.repository.update_failed_attempts(username, 0)
+                    return LoginModel(**account.to_response())
             return LoginModel.empty()
         except Exception as ex:
             self._logger.error(f"Login to system fail. \n{ex}")
@@ -81,7 +76,7 @@ class AccountService():
     def _verify_password(self, password: str, hashed_password: str):
         return bcrypt.checkpw(password.encode(), hashed_password.encode())        
     
-    async def _sendActivationEmail(self, username:str, email:str, activation_token: str):
+    async def _send_activation_email(self, username:str, email:str, activation_token: str):
         try:
             config = cf_manager.all_config
             activation_link = f"{config.http.url}/activate/{activation_token}"
@@ -91,7 +86,7 @@ class AccountService():
         except Exception as ex:
             raise ex
         
-    def _hashPassword(self, password:str) -> str:
+    def _hash_password(self, password:str) -> str:
         salt = bcrypt.gensalt()
         return bcrypt.hashpw(password.encode(), salt).decode()        
     

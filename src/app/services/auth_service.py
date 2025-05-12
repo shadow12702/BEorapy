@@ -1,6 +1,7 @@
 # Description: 
 
 import asyncio
+from datetime import datetime
 from admin.services.account_service import AccountService
 from core.auth.jwt_auth import JwtAuth
 from core.auth.token_manager import token_manager
@@ -26,16 +27,12 @@ class AuthService:
             user = await self.accountService.login(username, password, ip_address)
             if user.is_empty:
                raise "Login failed" 
-            info = {"username": user.Username, 
-                    "email": user.Email, 
-                    "is_admin": user.IsAdmin,
-                    "last_ip_address": user.LastIpAddress, 
-                    "last_login_date":user.LastLoginDate.isoformat()
-                }
-            access_token = await JwtAuth.create_token(info)
-            refresh_token = await JwtAuth.refresh_token(info)
+            info = user.model_dump()
+            info["last_login_date"] = user.last_login_date.isoformat()
+            access_token = await JwtAuth.generate_token(info)
+            refresh_token = await JwtAuth.generate_token(info, "refresh")
             return {"token": {"access": access_token, "refresh": refresh_token},
-                    "user": user.to_dict()
+                    "user": user.model_dump()
                     }
             
         except Exception as ex:
@@ -62,13 +59,9 @@ class AuthService:
             user = await JwtAuth.decode_token(refresh_token)
             if refresh_token in token_manager.tokens:
                 raise Exception({"status":401, "message": "Refresh token is invalid"})
-            info = {"username": user.get("username"), 
-                    "email": user.get("email"), 
-                    "is_admin": user.get("is_admin"),
-                    "last_ip_address": user.get("last_ip_address"), 
-                    "last_login_date":user.get("last_login_date")
-                }
-            access_token = await JwtAuth.create_token(info)
+            if datetime.utcnow() > datetime.utcfromtimestamp(user.pop("exp")):
+                raise Exception({"status":401, "message": "Refresh token expired"})
+            access_token = await JwtAuth.generate_token(user)
             return {"token": access_token}
         except Exception as ex:
             self._logger.error(f"Refresh token error {ex}")

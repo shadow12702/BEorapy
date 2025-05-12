@@ -14,10 +14,7 @@ class CustomerService():
         try:
             all_customers = await self.repository.get_all_customer()
             result = [
-                CustomerResponse(**{
-                    "code": item.Code,  
-                    "name": item.Name,
-                }) 
+                CustomerResponse(**item.to_response()) 
                 for item in all_customers
             ]
             return result
@@ -29,13 +26,7 @@ class CustomerService():
     async def get_customer(self,code):
         ''' Show customer'''
         customer = await self.repository.get_customer(code)
-        result = [
-                CustomerResponse(**{
-                    "code": item.Code,  
-                    "name": item.Name,
-                }) 
-                for item in customer
-            ]
+        result =  CustomerResponse(**customer.to_response()) 
         return result
 
 

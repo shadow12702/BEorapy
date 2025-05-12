@@ -7,6 +7,7 @@ from app.models.responses.login_response import LoginResponse
 from app.models.responses.awr_repo_info.awr_repo_info_response import AwrRepoInfoResponse
 from app.models.responses.awr_repo_info.awr_info_customer_response import AwrInfoCustomerResponse
 
+
 __all__ = [
     "BaseResponse",
     "successful",
@@ -16,5 +17,4 @@ __all__ = [
     "AppMenuResponse",
     "AwrRepoInfoResponse",
     "AwrInfoCustomerResponse",
-
 ]

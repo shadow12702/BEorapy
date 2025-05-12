@@ -14,7 +14,9 @@ class CdbAshOverallController:
     async def get_ash_overall_table(self, request: AshOverallRequest):
         try:
             if self._validate_request(request):
-                data = await self._service.get_ash_overall_table(request.customer_code, request.dbid)
+                data = await self._service.get_ash_overall_object_metric(request.metric_type, 
+                                                                         request.customer_code, 
+                                                                         request.dbid, request.begin_snap, request.end_snap)
                 if data:
                     chart_model = ChartModel(**{"type": 'pie', "title": "Ash Overall Table", "x_axis":"ObjectName", "y_axis": ["Percentage"]})
                     return ChartResponse(**{"chart_model":chart_model, "data": [vars(o) for o in data]})

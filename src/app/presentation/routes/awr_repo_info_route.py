@@ -7,7 +7,7 @@ from app.presentation.controller import AwrRepoInfoController
 from app.services.awr_repo_info_service import AwrRepoInfoService
 from app.models.response_model import successful, failed
 
-awr_repo_info_router = APIRouter(tags=["Awr Repo Info"])
+awr_repo_info_router = APIRouter(tags=["Awr Repo Info"], dependencies=[Depends(verify_auth)])
 
 def get_awr_repo_info_controller(app_factory: ApplicationFactory = Depends(get_app_factory)):
     '''Get customer controller'''

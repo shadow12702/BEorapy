@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from admin.services.patch_service import PatchService
-from admin.models.request_model import PatchRequest, PatchUpdateRequest
-from admin.data.entities.patch import Patch
+from admin.models.request_model import PatchRequest
+
 
 class PatchController:
     def __init__(self , patch_service: PatchService):

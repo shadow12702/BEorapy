@@ -6,6 +6,7 @@ from admin.models.request_model import MenuRequest, MenuTypeRequest
 from admin.models.response_model import successful, failed
 from admin.presentation.controller import MenuController
 from app.presentation.route import verify_auth
+from core.auth.jwt_auth import JwtAuth
 
 menu_router = APIRouter(tags=["Menu"], dependencies=[Depends(verify_auth)])
 

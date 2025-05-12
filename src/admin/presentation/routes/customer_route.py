@@ -8,7 +8,7 @@ from admin.models.request_model import CustomerRequest
 from admin.models.request_model import UpdateCustomerRequest
 from app.presentation.route import verify_auth
 
-customer_router = APIRouter(tags=["Customer"])
+customer_router = APIRouter(tags=["Customer"], dependencies=[Depends(verify_auth)])
 
 def get_customer_controller(admin_factory: AdminFactory = Depends(get_admin_factory)):
     '''Get customer controller'''

@@ -13,6 +13,7 @@ class GeneralRepository:
             self._logger.error(TypeError("db_context must implement DataOperations"))        
         self.db_context = db_context        
     
+    
     async def get_data(self, query, model, cus_code: str, dbid:int64, begin_snap: int32, end_snap: int32):
         '''Generalized method to retrieve data based on Enum Key and model object.
         
@@ -59,7 +60,8 @@ class GeneralRepository:
             # query = self.redis.getKey(enum_key.value)
             data = self.db_context.get_data(
                 query=query,
-                params={ 'P_CUS_CODE': cus_code,
+                params={ 
+                    # 'P_CUS_CODE': cus_code,
                     'P_DBID': dbid,
                     "P_BEGIN_SNAP":begin_snap, 
                     "P_END_SNAP":end_snap
